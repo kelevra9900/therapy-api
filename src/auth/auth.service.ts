@@ -1,35 +1,91 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
-import { UsersService } from '../users/users.service';
+import {LoginDto, RegisterDto} from './dto/auth.dto';
+import {PrismaService} from '../prisma/prisma.service';
+import {Role, SubscriptionStatus} from 'generated/prisma';
+import {jwtConstants} from 'src/utils/constants';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
-  async signIn(
-    username: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
-      throw new UnauthorizedException();
+
+  async signIn(loginRequest: LoginDto) {
+    const { email, password } = loginRequest;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
     }
-    const payload = { sub: user.userId, username: user.username };
+
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new Error('Invalid password');
+    }
+
+    const payload = { email: user.email, sub: user.id };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn: '1h',
+    });
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
     };
   }
 
+
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+    const user = await this.prisma.user.findUnique({
+      where: { email: username },
+    });
+    return user;
+  }
+
+  async validateUserByEmail(email: string): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    return user;
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(password, salt);
+  }
+
+  async comparePassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  async createUser({email, password, name}: RegisterDto) {
+    const hashedPassword = await this.hashPassword(password);
+
+  
+    return this.prisma.user.create({
+      data: {
+        email,
+        name,
+        passwordHash: hashedPassword,
+        role: Role.THERAPIST,
+        subscriptionStatus: SubscriptionStatus.INACTIVE
+      },
+    });
   }
 }

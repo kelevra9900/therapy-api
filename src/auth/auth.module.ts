@@ -8,11 +8,13 @@ import { UsersModule } from '../users/users.module';
 import { jwtConstants } from '../utils/constants';
 import {LocalStrategy} from './local.strategy';
 import {JwtStrategy} from './jwt.strategy';
+import {SharedModule} from '../common/shared.module';
 
 @Module({
   imports: [
     UsersModule,
-PassportModule,
+    PassportModule,
+    SharedModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,

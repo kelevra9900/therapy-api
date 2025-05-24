@@ -20,6 +20,15 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        passwordHash: true,
+        role: true,
+        subscriptionStatus: true,
+        createdAt: true,
+      },
     });
 
     if (!user) {
@@ -33,7 +42,13 @@ export class AuthService {
       throw new Error('Invalid password');
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
+
     const accessToken = this.jwtService.sign(payload, {
       secret: jwtConstants.secret,
       expiresIn: '1h',

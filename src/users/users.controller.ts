@@ -1,14 +1,14 @@
 import { Controller, Get, HttpCode, Param, Query, UseGuards } from '@nestjs/common';
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
+import {Role} from '@prisma/index';
 
 import {UsersService} from './users.service';
-import {AuthGuard} from '../auth/auth.guard';
-import {JwtPayload} from '../auth/types';
-import {User} from '../utils/user.decorator';
-import {Roles} from '../common/roles.decorator';
-import {Role} from 'generated/prisma';
-import {QueryOptionsDto} from '../common/dtos/query-options.dto';
-import {RolesGuard} from '../common/guards/roles.guard';
+import {AuthGuard} from '@/auth/auth.guard';
+import {JwtPayload} from '@/auth/types';
+import {User} from '@/common/decorators/user.decorator';
+import {Roles} from '@/common/roles.decorator';
+import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
+import {RolesGuard} from '@/common/guards/roles.guard';
 
 
 @ApiTags('Control of users')

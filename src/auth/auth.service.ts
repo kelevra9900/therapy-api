@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 
 import {LoginDto, RegisterDto} from './dto/auth.dto';
 import {PrismaService} from '../prisma/prisma.service';
-import {Role, SubscriptionStatus} from 'generated/prisma';
+import {Role, SubscriptionStatus} from '@prisma/client';
 import {jwtConstants} from 'src/utils/constants';
 
 @Injectable()

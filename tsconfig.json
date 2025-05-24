@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@prisma/*": ["generated/prisma/*"]
+    },
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,

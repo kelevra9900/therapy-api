@@ -1,7 +1,9 @@
 import {NestFactory} from '@nestjs/core';
-import {ConsoleLogger, ValidationPipe} from '@nestjs/common';
+import {ValidationPipe} from '@nestjs/common';
 import {SwaggerModule,DocumentBuilder} from '@nestjs/swagger';
 import * as basicAuth from 'express-basic-auth';
+import * as bodyParser from 'body-parser';
+
 import {AppModule} from './app.module';
 
 async function bootstrap() {
@@ -9,6 +11,7 @@ async function bootstrap() {
 const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({whitelist: true, transform: true }));
+  app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 
   app.use(
     ['/docs','/docs-json'],

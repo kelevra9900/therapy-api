@@ -66,13 +66,14 @@ model User {
 }
 
 model Membership {
-  id           String   @id @default(uuid())
-  name         String
-  description  String
-  priceMonthly Float
-  priceYearly  Float?
-  features     String[]
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  name          String
+  description   String
+  stripePriceId String?
+  priceMonthly  Float
+  priceYearly   Float?
+  features      String[]
+  createdAt     DateTime @default(now())
 
   subscriptions Subscription[]
 }

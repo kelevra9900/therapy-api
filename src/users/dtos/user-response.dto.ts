@@ -1,4 +1,4 @@
-import { Role, SubscriptionStatus } from 'generated/prisma';
+import { Role, SubscriptionStatus } from '@prisma/client';
 
 export interface UserResponseDto {
   id: string;

@@ -5,13 +5,17 @@ import * as basicAuth from 'express-basic-auth';
 import * as bodyParser from 'body-parser';
 
 import {AppModule} from './app.module';
+import {corsOptions} from './utils/constants';
 
 async function bootstrap() {
 
-const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({whitelist: true, transform: true }));
-  app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
+  app.useGlobalPipes(new ValidationPipe({whitelist: true,transform: true}));
+  app.use('/webhook',bodyParser.raw({type: 'application/json'}));
+  app.enableCors({
+    origin: corsOptions.origin,
+  });
 
   app.use(
     ['/docs','/docs-json'],
@@ -30,7 +34,9 @@ const app = await NestFactory.create(AppModule);
     .build();
 
   const document = SwaggerModule.createDocument(app,config);
-
+  if (process.env.NODE_ENV !== 'production') {
+    require('tsconfig-paths/register');
+  }
   SwaggerModule.setup('docs',app,document);
 
   await app.listen(process.env.PORT ?? 3001);

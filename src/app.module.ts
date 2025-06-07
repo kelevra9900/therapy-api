@@ -7,6 +7,8 @@ import {SharedModule} from './common/shared.module';
 import {SubscriptionsModule} from './subscriptions/subscriptions.module';
 import {MembershipsModule} from './memberships/memberships.module';
 import {StripeModule} from './stripe/stripe.module';
+import { ClientsModule } from './clients/clients.module';
+import { FormResponsesModule } from './form-responses/form-responses.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import {StripeModule} from './stripe/stripe.module';
     SubscriptionsModule,
     StripeModule,
     MembershipsModule,
+    ClientsModule,
+    FormResponsesModule,
   ],
   controllers: [],
 })

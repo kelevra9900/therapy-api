@@ -7,6 +7,7 @@ import {
   HttpCode,
   Body,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import Stripe from 'stripe';
 import {Request,Response} from 'express';
@@ -28,6 +29,12 @@ import {CreateDirectSubscriptionDto} from '@/subscriptions/dto/create-direct-sub
 @ApiTags('Subscriptions')
 @ApiBearerAuth()
 export class StripeController {
+  private readonly logger = new Logger(StripeController.name);
+  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!,{
+    apiVersion: '2025-04-30.basil',
+  });
+
+
   constructor(
     private stripeService: StripeService,
     private paymentsService: PaymentsService,
@@ -47,7 +54,7 @@ export class StripeController {
       event = this.stripeService.getClient().webhooks.constructEvent(
         (req as any).body,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET!,
+        process.env.STRIPE_WEBHOOK_SECRET || '',
       );
     } catch (err) {
       console.error('Webhook signature verification failed:',err.message);
@@ -59,29 +66,48 @@ export class StripeController {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
-        const subscriptionId = session.subscription as string;
+        const stripeSubscriptionId = session.subscription as string;
 
-        if (userId && subscriptionId) {
-          await this.subscriptionsService.activateSubscription(userId,subscriptionId);
+        if (!userId) {
+          this.logger.warn('No se encontró el userId en metadata');
+          return;
         }
-        break;
-      }
 
-      case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as Stripe.Invoice;
-        await this.paymentsService.logPayment({
-          subscriptionId: invoice.id as string,
-          amount: invoice.amount_paid / 100,
-          method: 'CARD',
-          status: 'PAID',
-          paidAt: new Date(invoice.created * 1000),
+        this.logger.log('✅ checkout.session.completed',{
+          userId,
+          stripeSubscriptionId,
         });
+
+
+        await this.subscriptionsService.activateSubscription(
+          userId,
+          stripeSubscriptionId,
+        );
         break;
       }
+      case 'invoice.payment_succeeded': {
+        this.logger.log(`invoice.payment_succeeded: ${event.type}`);
+        const invoice = event.data.object as Stripe.Invoice & {subscription?: string};
+        const subscriptionId = invoice.parent?.subscription_details?.subscription;
 
+        // log
+
+        // Aquí puedes manejar el pago exitoso de la factura
+        break;
+      }
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        await this.subscriptionsService.markAsPastDue(invoice.id as string);
+        this.logger.log(`invoice.payment_failed: ${event.type}`);
+        const invoice = event.data.object as Stripe.Invoice & {subscription?: string};
+        const subscriptionId = invoice.parent?.subscription_details?.subscription;
+
+        if (subscriptionId && typeof subscriptionId === 'string') {
+          await this.subscriptionsService.markAsPastDue(subscriptionId);
+          this.logger.log(`Marked subscription ${subscriptionId} as past due`);
+          // await this.subscriptionsService.activateSubscription(userId, subscriptionId);
+        } else {
+          console.warn('Subscription ID not found in failed invoice event');
+        }
+
         break;
       }
 

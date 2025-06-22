@@ -1,4 +1,4 @@
-import {ForbiddenException,Injectable,NotFoundException} from '@nestjs/common';
+import {ForbiddenException,Injectable,Logger,NotFoundException} from '@nestjs/common';
 import {format} from 'date-fns';
 
 import {PrismaService} from '../prisma/prisma.service';
@@ -7,13 +7,19 @@ import {PaginatedResponse} from '../common/types/paginated-response.type';
 import {UserResponseDto} from './dtos/user-response.dto';
 import {JwtPayload} from '@/auth/types';
 import {UpdateUserDto} from './dtos/update-user.dto';
+import {RegisterDto} from '@/auth/dto/auth.dto';
+import {AuthService} from '@/auth/auth.service';
+import {Role, SubscriptionStatus} from '@prisma/index';
 
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
 
   constructor(
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly authService: AuthService,
   ) {
   }
 
@@ -54,6 +60,7 @@ export class UsersService {
       : {};
 
     let where: any = {};
+
 
     if (user.role === 'ADMIN') {
       where = {
@@ -108,6 +115,9 @@ export class UsersService {
 
 
   async updateUser(id: string,dto: UpdateUserDto,user: JwtPayload): Promise<UserResponseDto> {
+    this.logger.log(`Updating user with ID: ${id} by user with ID: ${user.sub}`);
+    this.logger.log(`User role: ${user.role}`);
+    this.logger.log(`Update data: ${JSON.stringify(dto)}`);
     const targetUser = await this.prismaService.user.findUnique({
       where: {id},
       include: {
@@ -155,6 +165,48 @@ export class UsersService {
     return {
       ...updated,
       createdAt: format(updated.createdAt,'yyyy-MM-dd HH:mm:ss'),
+    };
+  }
+
+
+  // Delete a user
+  async deleteUser(id: string): Promise<{message: string}> {
+    const user = await this.prismaService.user.findUnique({
+      where: {id},
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prismaService.user.delete({
+      where: {id},
+    });
+
+    return {
+      message: 'User deleted successfully',
+    }
+  }
+
+  async createUser({email,password,name}: RegisterDto): Promise<UserResponseDto> {
+    const hashedPassword = await this.authService.hashPassword(password);
+    const newUser = await this.prismaService.user.create({
+      data: {
+        email,
+        name,
+        passwordHash: hashedPassword,
+        role: Role.THERAPIST,
+        subscriptionStatus: SubscriptionStatus.INACTIVE
+      },
+    });
+    return {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      isActive: newUser.isActive,
+      subscriptionStatus: newUser.subscriptionStatus,
+      createdAt: format(newUser.createdAt,'yyyy-MM-dd HH:mm:ss'),
     };
   }
 }

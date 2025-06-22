@@ -40,6 +40,9 @@ enum Gender {
 
 enum QuestionType {
   MULTIPLE_CHOICE
+  SCALE
+  TEXT
+  BOOLEAN
 }
 
 enum AnxietyLevel {
@@ -63,6 +66,7 @@ model User {
   subscriptions Subscription[]
   clients       Client[]
   formResponses FormResponse[]
+  formInvitations FormInvitation[]
 }
 
 model Membership {
@@ -77,6 +81,22 @@ model Membership {
 
   subscriptions Subscription[]
 }
+
+model FormInvitation {
+  id             String        @id @default(uuid())
+  token          String        @unique
+  therapistId    String
+  clientId       String
+  formTemplateId String
+  isCompleted    Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  expiresAt      DateTime?
+
+  therapist      User          @relation(fields: [therapistId], references: [id])
+  client         Client        @relation(fields: [clientId], references: [id])
+  formTemplate   FormTemplate  @relation(fields: [formTemplateId], references: [id])
+}
+
 
 model Subscription {
   id                String             @id @default(uuid())
@@ -117,17 +137,20 @@ model Client {
 
   therapist     User           @relation(fields: [therapistId], references: [id])
   formResponses FormResponse[]
+  formInvitations FormInvitation[]
 }
 
 model FormTemplate {
-  id          String  @id @default(uuid())
-  title       String
-  description String
-  isActive    Boolean @default(true)
-  createdBy   String
-
-  questions     Question[]
-  formResponses FormResponse[]
+  id             String        @id @default(uuid())
+  title          String
+  description    String
+  isActive       Boolean       @default(true)
+  createdBy      String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt // <--- este es el cambio
+  questions      Question[]
+  formResponses  FormResponse[]
+  formInvitations FormInvitation[]
 }
 
 model Question {

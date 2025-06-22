@@ -1,14 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
+  private readonly logger = new Logger(StripeService.name);
   private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-04-30.basil',
   });
 
   getClient() {
     return this.stripe;
+  }
+
+  async getPrice(priceId: string) {
+    return this.stripe.prices.retrieve(priceId);
   }
 
   async createCheckoutSession({
@@ -22,6 +27,7 @@ export class StripeService {
     successUrl: string;
     cancelUrl: string;
   }) {
+    this.logger.log(`Creating checkout session for user ${userId} with price ${priceId}`);
     return this.stripe.checkout.sessions.create({
       mode: 'subscription',
       customer_email: await this.getUserEmail(userId), // opcional: puedes vincular customer

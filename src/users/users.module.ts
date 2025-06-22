@@ -5,6 +5,7 @@ import {UsersService} from './users.service';
 import {UsersController} from './users.controller';
 import {jwtConstants} from '../utils/constants';
 import {SharedModule} from '../common/shared.module';
+import {AuthService} from '@/auth/auth.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import {SharedModule} from '../common/shared.module';
       signOptions: {expiresIn: '60s'},
     }),
   ],
-  providers: [UsersService],
+  providers: [UsersService, AuthService],
   exports: [UsersService],
   controllers: [UsersController],
 })

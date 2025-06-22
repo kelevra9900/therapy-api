@@ -1,11 +1,11 @@
 import {Module} from '@nestjs/common';
 import {JwtModule} from '@nestjs/jwt';
 
+import {FormInvitationsService} from './form-invitations.service';
+import {FormInvitationsController} from './forms.controller';
 import {jwtConstants} from '../utils/constants';
 import {SharedModule} from '../common/shared.module';
 import {AuthService} from '@/auth/auth.service';
-import {ClientsService} from './clients.service';
-import {ClientsController} from './clients.controller';
 
 @Module({
   imports: [
@@ -16,8 +16,8 @@ import {ClientsController} from './clients.controller';
       signOptions: {expiresIn: '60s'},
     }),
   ],
-  providers: [ClientsService, AuthService],
-  exports: [ClientsService],
-  controllers: [ClientsController],
+  providers: [FormInvitationsService, AuthService],
+  exports: [FormInvitationsService],
+  controllers: [FormInvitationsController],
 })
-export class ClientsModule { }
+export class FormInvitationModel { }

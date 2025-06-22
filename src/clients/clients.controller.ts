@@ -7,7 +7,7 @@ import {
 	Put,
 	UseGuards,
 } from '@nestjs/common';
-import {ApiBearerAuth,ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth,ApiBody,ApiOperation,ApiResponse,ApiTags} from '@nestjs/swagger';
 import {ClientsService} from './clients.service';
 import {AuthGuard} from '@/auth/auth.guard';
 import {RolesGuard} from '@/common/guards/roles.guard';
@@ -17,6 +17,7 @@ import {CreateClientDto} from './dtos/create-client.dto';
 import {User} from '@/common/decorators/user.decorator';
 import {JwtPayload} from '@/auth/types';
 import {UpdateClientDto} from './dtos/update-client.dto';
+import {ClientResponseDto} from './dtos/client-response.dto';
 
 @ApiTags('Clients')
 @ApiBearerAuth()
@@ -24,29 +25,13 @@ import {UpdateClientDto} from './dtos/update-client.dto';
 @UseGuards(AuthGuard,RolesGuard)
 @Roles(Role.THERAPIST)
 export class ClientsController {
-	constructor(private readonly clientsService: ClientsService) { }
+	constructor(private readonly clientService: ClientsService) { }
 
-	@Post()
-	async createClient(
-		@User() user: JwtPayload,
-		@Body() dto: CreateClientDto,
-	) {
-		return this.clientsService.createClient(dto,user.sub);
-	}
-	@Get(':id')
-	async getClientById(
-		@User() user: JwtPayload,
-		@Param('id') id: string,
-	) {
-		return this.clientsService.getClientById(id,user.sub);
-	}
-
-	@Put(':id')
-	async updateClient(
-		@User() user: JwtPayload,
-		@Param('id') id: string,
-		@Body() dto: UpdateClientDto,
-	) {
-		return this.clientsService.updateClient(id,user.sub,dto);
-	}
+  @Post()
+  @ApiOperation({ summary: 'Crear cliente vinculado al terapeuta' })
+  @ApiBody({ type: CreateClientDto })
+  @ApiResponse({ status: 201, type: ClientResponseDto })
+  create(@Body() dto: CreateClientDto, @User() user: JwtPayload) {
+    return this.clientService.create(dto, user);
+  }
 }

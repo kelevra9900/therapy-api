@@ -5,10 +5,16 @@ import {PrismaService} from '@/prisma/prisma.service';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
 import {paginate} from '@/utils/helpers/paginate';
 import {UpdateClientDto} from './dtos/update-client.dto';
+import {JwtPayload} from '@/auth/types';
+import {ClientResponseDto} from './dtos/client-response.dto';
+import {AuthService} from '@/auth/auth.service';
+import {Role} from '@prisma/client';
 
 @Injectable()
 export class ClientsService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(
+		private readonly prisma: PrismaService,
+	) { }
 
 	async createClient(dto: CreateClientDto,therapistId: string) {
 		const therapistExists = await this.prisma.user.findUnique({
@@ -38,7 +44,39 @@ export class ClientsService {
 
 		return client;
 	}
+	async create(dto: CreateClientDto,user: JwtPayload): Promise<ClientResponseDto> {
 
+		const existingClient = await this.prisma.client.findFirst({
+			where: {
+				email: dto.email,
+				therapistId: user.sub,
+			},
+		});
+		if (existingClient) {
+			throw new ForbiddenException('Client with this email already exists');
+		}
+		const newClient = await this.prisma.client.create({
+			data: {
+				name: dto.name,
+				email: dto.email,
+				birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
+				gender: dto.gender,
+				notes: dto.notes,
+				therapistId: user.sub,
+			},
+		});
+
+		return {
+			id: newClient.id,
+			name: newClient.name,
+			email: newClient.email ?? '',
+			birthDate: newClient.birthDate ? newClient.birthDate.toISOString().split('T')[0] : undefined,
+			gender: newClient.gender ?? undefined,
+			notes: newClient.notes ?? '',
+			therapistId: newClient.therapistId,
+			createdAt: new Date()
+		};
+	}
 
 	async getClientsByTherapist(therapistId: string,query: QueryOptionsDto) {
 		return paginate(this.prisma.client,query,{

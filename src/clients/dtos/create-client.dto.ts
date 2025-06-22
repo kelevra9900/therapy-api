@@ -1,28 +1,43 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsDateString } from 'class-validator';
 import { Gender } from '@prisma/client';
-
 export class CreateClientDto {
-  @ApiProperty({ example: 'Carlos López' })
-  @IsString()
+  @ApiProperty({
+    description: 'Nombre completo del cliente',
+    example: 'Juan Pérez',
+  })
+  @IsNotEmpty({ message: 'El nombre es obligatorio' })
   name: string;
 
-  @ApiPropertyOptional({ example: 'carlos@example.com' })
+  @ApiPropertyOptional({
+    description: 'Correo electrónico del cliente',
+    example: 'juan.perez@example.com',
+  })
   @IsOptional()
-  @IsEmail()
+  @IsEmail({}, { message: 'Debe ser un correo electrónico válido' })
   email?: string;
 
-  @ApiPropertyOptional({ example: '1990-10-05' })
+  @ApiPropertyOptional({
+    description: 'Fecha de nacimiento del cliente',
+    example: '1990-01-01',
+  })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: 'Debe ser una fecha válida (YYYY-MM-DD)' })
   birthDate?: string;
 
-  @ApiPropertyOptional({ enum: Gender, example: Gender.MALE })
+  @ApiPropertyOptional({
+    description: 'Género del cliente',
+    enum: Gender,
+    example: Gender.MALE,
+  })
   @IsOptional()
-  @IsEnum(Gender)
+  @IsEnum(Gender, { message: 'Género no válido' })
   gender?: Gender;
 
-  @ApiPropertyOptional({ example: 'Paciente con historial de ansiedad' })
+  @ApiPropertyOptional({
+    description: 'Notas adicionales sobre el cliente',
+    example: 'Cliente con antecedentes de ansiedad',
+  })
   @IsOptional()
   @IsString()
   notes?: string;

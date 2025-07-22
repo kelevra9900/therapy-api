@@ -1,4 +1,4 @@
-import {PrismaClient} from '../../../generated/prisma/client';
+import {PrismaClient} from '@prisma/client';
 import {formTemplateConstants} from '../contants';
 
 const prisma = new PrismaClient();

@@ -12,32 +12,18 @@ import {
 import Stripe from 'stripe';
 import {Request,Response} from 'express';
 import {ApiBearerAuth,ApiTags} from '@nestjs/swagger';
-import {Role} from '@prisma/index';
 
 import {StripeService} from './stripe.service';
-import {PaymentsService} from '@/payments/payments.service';
 import {SubscriptionsService} from '@/subscriptions/subscriptions.service';
-import {JwtPayload} from '@/auth/types';
-import {User} from '@/common/decorators/user.decorator';
-import {AuthGuard} from '@/auth/auth.guard';
-import {RolesGuard} from '@/common/guards/roles.guard';
-import {Roles} from '@/common/roles.decorator';
-import {CreateDirectSubscriptionDto} from '@/subscriptions/dto/create-direct-subscription.dto';
-
 
 @Controller('webhook')
 @ApiTags('Subscriptions')
 @ApiBearerAuth()
 export class StripeController {
   private readonly logger = new Logger(StripeController.name);
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!,{
-    apiVersion: '2025-04-30.basil',
-  });
-
 
   constructor(
     private stripeService: StripeService,
-    private paymentsService: PaymentsService,
     private subscriptionsService: SubscriptionsService,
   ) { }
 

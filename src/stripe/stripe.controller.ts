@@ -87,10 +87,22 @@ export class StripeController {
       }
       case 'invoice.payment_succeeded': {
         this.logger.log(`invoice.payment_succeeded: ${event.type}`);
+
         const invoice = event.data.object as Stripe.Invoice & {subscription?: string};
         const subscriptionId = invoice.parent?.subscription_details?.subscription;
+        const userId = invoice.metadata?.userId;  
 
-        // log
+        if (!subscriptionId || typeof subscriptionId !== 'string') {
+          this.logger.warn('Subscription ID not found in succeeded invoice event');
+        }
+
+        if (!userId) {
+          this.logger.warn('User ID not found in succeeded invoice event');
+          return;
+        }
+
+        this.logger.log(`Activating subscription ${subscriptionId} for user ${userId}`);
+        // Create a payment log
 
         // Aquí puedes manejar el pago exitoso de la factura
         break;
@@ -108,6 +120,20 @@ export class StripeController {
           console.warn('Subscription ID not found in failed invoice event');
         }
 
+        break;
+      }
+    //invoice.payment_succeeded
+      case 'invoice.payment_succeeded': {
+        this.logger.log(`invoice.payment_succeeded: ${event.type}`);
+        const invoice = event.data.object as Stripe.Invoice & {subscription?: string};
+        const subscriptionId = invoice.parent?.subscription_details?.subscription; 
+        const userId = invoice.metadata?.userId;
+        if (subscriptionId && typeof subscriptionId === 'string' && userId) {
+          await this.subscriptionsService.activateSubscription(userId, subscriptionId);
+          this.logger.log(`Activated subscription ${subscriptionId} for user ${userId}`);
+        } else {
+          console.warn('Subscription ID not found in succeeded invoice event');
+        }
         break;
       }
 

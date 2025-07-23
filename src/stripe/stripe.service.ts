@@ -3,10 +3,21 @@ import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
-  private readonly logger = new Logger(StripeService.name);
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-06-30.basil',
-  });
+ private readonly logger = new Logger(StripeService.name);
+  private stripe: Stripe;
+
+  onModuleInit() {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      this.logger.error('STRIPE_SECRET_KEY is not defined in environment variables');
+      throw new Error('STRIPE_SECRET_KEY is missing');
+    }
+
+    this.stripe = new Stripe(key, {
+      apiVersion: '2025-06-30.basil',
+    });
+    this.logger.log('Stripe initialized successfully');
+  }
 
   getClient() {
     return this.stripe;

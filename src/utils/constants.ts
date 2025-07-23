@@ -5,6 +5,7 @@ export const jwtConstants = {
 export const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'https://escalaterapia.com',
     '*',
   ],
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],

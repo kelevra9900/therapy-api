@@ -26,6 +26,11 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.enableCors({
+    origin: corsOptions.origin,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Therapist API')
     .setDescription('The Therapist API description')

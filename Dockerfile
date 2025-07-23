@@ -9,7 +9,6 @@ COPY package*.json ./
 COPY prisma ./prisma
 COPY tsconfig.build.json ./
 COPY tsconfig.json ./
-COPY .env .env
 COPY src ./src
 
 # Instalar dependencias

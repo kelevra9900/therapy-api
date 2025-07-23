@@ -1,12 +1,12 @@
 // src/modules/clients/clients.service.ts
 import {ForbiddenException,Injectable,NotFoundException} from '@nestjs/common';
-import {CreateClientDto} from './dtos/create-client.dto';
 import {PrismaService} from '@/prisma/prisma.service';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
 import {paginate} from '@/utils/helpers/paginate';
 import {UpdateClientDto} from './dtos/update-client.dto';
 import {JwtPayload} from '@/auth/types';
 import {ClientResponseDto} from './dtos/client-response.dto';
+import {CreateClientDto} from '@/therapist/dtos/create-client.dto';
 @Injectable()
 export class ClientsService {
 	constructor(

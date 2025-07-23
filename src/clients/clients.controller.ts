@@ -12,11 +12,11 @@ import {ClientsService} from './clients.service';
 import {AuthGuard} from '@/auth/auth.guard';
 import {RolesGuard} from '@/common/guards/roles.guard';
 import {Roles} from '@/common/roles.decorator';
-import {CreateClientDto} from './dtos/create-client.dto';
 import {User} from '@/common/decorators/user.decorator';
 import {JwtPayload} from '@/auth/types';
 import {ClientResponseDto} from './dtos/client-response.dto';
 import {Role} from '@prisma/client';
+import {CreateClientDto} from '@/therapist/dtos/create-client.dto';
 
 @ApiTags('Clients')
 @ApiBearerAuth()

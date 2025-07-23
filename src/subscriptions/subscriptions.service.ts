@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 
 import {StripeService} from '@/stripe/stripe.service';
 import {PrismaService} from '@/prisma/prisma.service';
-import {PaymentMethod,Subscription,SubscriptionStatus} from '@prisma/client';
+import {PaymentMethod,Subscription,SubscriptionStatus} from 'generated/prisma';
 
 @Injectable()
 export class SubscriptionsService {

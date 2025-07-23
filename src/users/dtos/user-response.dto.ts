@@ -1,6 +1,6 @@
 // dtos/user-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, SubscriptionStatus } from '@prisma/client';
+import { Role, SubscriptionStatus } from 'generated/prisma';
 
 export class UserResponseDto {
   @ApiProperty()

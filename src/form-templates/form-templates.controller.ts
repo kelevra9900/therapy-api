@@ -23,16 +23,15 @@ import {
 import {AuthGuard} from '@/auth/auth.guard';
 import {RolesGuard} from '@/common/guards/roles.guard';
 import {Roles} from '@/common/roles.decorator';
-import {Role} from '@prisma/client';
 import {JwtPayload} from '@/auth/types';
 import {User} from '@/common/decorators/user.decorator';
 
 import {FormTemplatesService} from './form-templates.service';
 import {CreateFormTemplateDto} from './dtos/create-form-template.dto';
-import {UpdateFormTemplateDto} from './dtos/update-form-template.dto';
 import {PaginatedResponse} from '@/common/types/paginated-response.type';
 import {FormTemplateResponseDto} from './dtos/form-template-response.dto';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
+import {Role} from 'generated/prisma';
 
 @ApiTags('Admin - Form Templates')
 @ApiBearerAuth()

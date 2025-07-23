@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import {formTemplateConstants} from '../contants';
+import {formTemplateConstants} from '../constants';
 
 const prisma = new PrismaClient();
 

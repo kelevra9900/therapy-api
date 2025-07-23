@@ -7,9 +7,6 @@ import {paginate} from '@/utils/helpers/paginate';
 import {UpdateClientDto} from './dtos/update-client.dto';
 import {JwtPayload} from '@/auth/types';
 import {ClientResponseDto} from './dtos/client-response.dto';
-import {AuthService} from '@/auth/auth.service';
-import {Role} from '@prisma/client';
-
 @Injectable()
 export class ClientsService {
 	constructor(

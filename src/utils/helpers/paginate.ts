@@ -1,5 +1,5 @@
 // src/common/helpers/paginate.ts
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'generated/prisma';
 import { QueryOptionsDto } from '@/common/dtos/query-options.dto';
 
 export async function paginate<T>(

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SubscriptionStatus, PaymentMethod } from '@prisma/index';
+import { SubscriptionStatus, PaymentMethod } from 'generated/prisma';
 
 export class UserSubscriptionDto {
   @ApiProperty() id: string;

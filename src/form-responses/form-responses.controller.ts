@@ -3,11 +3,11 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@/auth/auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/roles.decorator';
-import { Role } from '@prisma/client';
 import { JwtPayload } from '@/auth/types';
 import { User } from '@/common/decorators/user.decorator';
 import { FormResponsesService } from './form-responses.service';
 import { CreateFormResponseDto } from './dtos/create-form-response.dto';
+import {Role} from 'generated/prisma';
 
 @Controller('form-responses')
 @UseGuards(AuthGuard, RolesGuard)

@@ -3,15 +3,13 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import {Prisma} from '@prisma/client';
+import {Role} from 'generated/prisma';
+import {format} from 'date-fns';
 
 import {PrismaService} from '@/prisma/prisma.service';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
-import {Role} from '@prisma/client';
 import {JwtPayload} from '@/auth/types';
-import {format} from 'date-fns';
 import {CreateFormTemplateDto} from '@/form-templates/dtos/create-form-template.dto';
-import {UpdateFormTemplateDto} from '@/form-templates/dtos/update-form-template.dto';
 
 @Injectable()
 export class FormTemplatesService {
@@ -110,19 +108,19 @@ export class FormTemplatesService {
 	async getAll(query: QueryOptionsDto) {
 		const {page = 1,limit = 10,search} = query;
 
-		const where: Prisma.FormTemplateWhereInput | undefined = search
+		const where = search
 			? {
 				OR: [
 					{
 						title: {
 							contains: search,
-							mode: Prisma.QueryMode.insensitive,
+							mode: 'insensitive',
 						},
 					},
 					{
 						description: {
 							contains: search,
-							mode: Prisma.QueryMode.insensitive,
+							mode: 'insensitive',
 						},
 					},
 				],

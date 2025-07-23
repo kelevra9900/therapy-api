@@ -3,13 +3,14 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
+import {format} from 'date-fns';
 import {PrismaService} from '@/prisma/prisma.service';
+import {Role} from 'generated/prisma';
+
 import {CreateFormTemplateDto} from './dtos/create-form-template.dto';
 import {UpdateFormTemplateDto} from './dtos/update-form-template.dto';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
-import {Role} from '@prisma/client';
 import {JwtPayload} from '@/auth/types';
-import {format} from 'date-fns';
 
 @Injectable()
 export class FormTemplatesService {

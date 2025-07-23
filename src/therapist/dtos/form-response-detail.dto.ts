@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AnxietyLevel, QuestionType } from '@prisma/client';
+import { AnxietyLevel, QuestionType } from 'generated/prisma';
 
 export class AnswerDto {
   @ApiProperty()

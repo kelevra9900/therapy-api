@@ -7,10 +7,10 @@ import {
 import {PrismaService} from '@/prisma/prisma.service';
 import {CreateFormInvitationDto} from './dtos/create-form-invitation.dto';
 import {JwtPayload} from '@/auth/types';
-import {Role} from '@prisma/client';
 import {format} from 'date-fns';
 import {FormInvitationResponseDto} from './dtos/form-invitation-response.dto';
 import {CreateFormResponseDto} from './dtos/reate-form-response.dto';
+import {Role} from 'generated/prisma';
 
 @Injectable()
 export class FormInvitationsService {

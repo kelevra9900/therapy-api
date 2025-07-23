@@ -9,7 +9,7 @@ import {JwtPayload} from '@/auth/types';
 import {UpdateUserDto} from './dtos/update-user.dto';
 import {RegisterDto} from '@/auth/dto/auth.dto';
 import {AuthService} from '@/auth/auth.service';
-import {Role, SubscriptionStatus} from '@prisma/index';
+import {Role, SubscriptionStatus} from 'generated/prisma';
 
 
 @Injectable()

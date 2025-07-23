@@ -7,7 +7,7 @@ import { User } from '@/common/decorators/user.decorator';
 import { JwtPayload } from '@/auth/types';
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import {Roles} from '@/common/roles.decorator';
-import {Role} from '@prisma/index';
+import {Role} from 'generated/prisma';
 import {RolesGuard} from '@/common/guards/roles.guard';
 import {CreateDirectSubscriptionDto} from './dto/create-direct-subscription.dto';
 import {StripeService} from '@/stripe/stripe.service';

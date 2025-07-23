@@ -31,7 +31,7 @@ import {CreateFormTemplateDto} from './dtos/create-form-template.dto';
 import {PaginatedResponse} from '@/common/types/paginated-response.type';
 import {FormTemplateResponseDto} from './dtos/form-template-response.dto';
 import {QueryOptionsDto} from '@/common/dtos/query-options.dto';
-import {Role} from 'generated/prisma';
+import {Role} from '@prisma/client';
 
 @ApiTags('Admin - Form Templates')
 @ApiBearerAuth()

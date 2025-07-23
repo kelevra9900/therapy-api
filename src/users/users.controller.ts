@@ -20,7 +20,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 
-import { Role } from 'generated/prisma';
+import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@/auth/auth.guard';
 import { JwtPayload } from '@/auth/types';

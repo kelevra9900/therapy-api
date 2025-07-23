@@ -16,7 +16,7 @@ import {CreateClientDto} from './dtos/create-client.dto';
 import {User} from '@/common/decorators/user.decorator';
 import {JwtPayload} from '@/auth/types';
 import {ClientResponseDto} from './dtos/client-response.dto';
-import {Role} from 'generated/prisma';
+import {Role} from '@prisma/client';
 
 @ApiTags('Clients')
 @ApiBearerAuth()

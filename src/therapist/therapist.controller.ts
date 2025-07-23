@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { TherapistService } from './therapist.service';
-import { Role } from 'generated/prisma';
+import { Role } from '@prisma/client';
 import { Request } from 'express';
 
 import {JwtAuthGuard} from '@/auth/jwt-auth.guard';

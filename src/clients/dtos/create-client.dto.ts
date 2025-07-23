@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsDateString } from 'class-validator';
-import {Gender} from 'generated/prisma';
+import {Gender} from '@prisma/client';
 
 export class CreateClientDto {
   @ApiProperty({

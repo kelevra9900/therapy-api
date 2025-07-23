@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
-import {QuestionType} from 'generated/prisma';
+import {QuestionType} from '@prisma/client';
 
 export class QuestionInputDto {
   @IsString()

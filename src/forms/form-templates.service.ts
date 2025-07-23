@@ -3,7 +3,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import {Role} from 'generated/prisma';
+import {Role} from '@prisma/client';
 import {format} from 'date-fns';
 
 import {PrismaService} from '@/prisma/prisma.service';
@@ -108,7 +108,7 @@ export class FormTemplatesService {
 	async getAll(query: QueryOptionsDto) {
 		const {page = 1,limit = 10,search} = query;
 
-		const where = search
+		const where: any = search
 			? {
 				OR: [
 					{

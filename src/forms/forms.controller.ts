@@ -23,7 +23,7 @@ import {JwtPayload} from '@/auth/types';
 import {AuthGuard} from '@/auth/auth.guard';
 import {RolesGuard} from '@/common/guards/roles.guard';
 import {Roles} from '@/common/roles.decorator';
-import {Role} from 'generated/prisma';
+import {Role} from '@prisma/client';
 import {User} from '@/common/decorators/user.decorator';
 import {FormInvitationResponseDto} from './dtos/form-invitation-response.dto';
 import {FormInvitationPublicDto} from './dtos/form-invitation-public.dto';

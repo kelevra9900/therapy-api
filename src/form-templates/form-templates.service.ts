@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import {format} from 'date-fns';
 import {PrismaService} from '@/prisma/prisma.service';
-import {Role} from 'generated/prisma';
+import {Role} from '@prisma/client';
 
 import {CreateFormTemplateDto} from './dtos/create-form-template.dto';
 import {UpdateFormTemplateDto} from './dtos/update-form-template.dto';

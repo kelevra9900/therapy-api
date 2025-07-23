@@ -1,5 +1,5 @@
 
-import {PrismaClient,Role,Gender,User,Client,Question} from '../generated/prisma/client';
+import {PrismaClient,Role,Gender,User,Client,Question} from '@prisma/client';
 import * as dotenv from 'dotenv';
 
 import Stripe from 'stripe';

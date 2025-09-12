@@ -1,17 +1,24 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 import {LoginDto,RegisterDto} from './dto/auth.dto';
 import {PrismaService} from '../prisma/prisma.service';
 import {jwtConstants} from 'src/utils/constants';
 import {Role, SubscriptionStatus} from '@prisma/client';
+import {MailService} from '@/mail/mail.service';
+import {randomUUID} from 'crypto';
+import {PasswordResetService} from './password-reset.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private readonly mailService: MailService,
+    private readonly passwordResetService: PasswordResetService,
+    private readonly configService: ConfigService,
   ) { }
 
 
@@ -103,4 +110,31 @@ export class AuthService {
       },
     });
   }
+    async sendForgotPasswordEmail(email: string): Promise<{ message: string }> {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email
+        }
+      })
+
+      if (!user) {
+        return { message: 'If that email is registered, a reset link will be sent shortly.' };
+      }
+
+      const token = randomUUID();
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+
+      await this.passwordResetService.create({
+        userId: user.id,
+        token,
+        expiresAt,
+      });
+
+      const resetUrl = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+
+      await this.mailService.sendResetPasswordEmail(user.email, resetUrl);
+
+      return { message: 'Reset link sent to your email address.' };
+    }
+
 }

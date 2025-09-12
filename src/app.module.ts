@@ -12,6 +12,7 @@ import {FormResponsesModule} from './form-responses/form-responses.module';
 import {FormInvitationModel} from './forms/form-invitations.module';
 import {FormTemplatesModule} from './form-templates/form-templates.module';
 import {TherapistModule} from './therapist/therapist.module';
+import {MailModule} from './mail/mail.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import {TherapistModule} from './therapist/therapist.module';
     SubscriptionsModule,
     StripeModule,
     MembershipsModule,
+    MailModule,
     ClientsModule,
     FormResponsesModule,
     FormInvitationModel,

@@ -66,6 +66,7 @@ model User {
   clients       Client[]
   formResponses FormResponse[]
   formInvitations FormInvitation[]
+  passwordResetToken PasswordResetToken[]
 }
 
 model Membership {
@@ -96,6 +97,16 @@ model FormInvitation {
   formTemplate   FormTemplate  @relation(fields: [formTemplateId], references: [id])
 }
 
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
 
 model Subscription {
   id                String             @id @default(uuid())

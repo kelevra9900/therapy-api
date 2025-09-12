@@ -1,103 +1,155 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+**Therapist API**
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+REST API for therapists, clients, form workflows, and Stripe subscriptions. Built with NestJS + Prisma.
 
-## Description
+**Table of Contents**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Requirements
+- Run Locally
+- Authentication
+- Swagger Docs
+- Endpoints
+- Environment Variables
 
-## Project setup
+**Requirements**
 
-```bash
-yarn install
-```
+- Node.js 18+
+- PostgreSQL
+- Yarn
 
-## Compile and run the project
+**Run Locally**
 
-```bash
-# development
-$ yarn run start
+- Install dependencies: `yarn install`
+- Run Prisma migrations: `yarn prisma migrate dev`
+- Start in dev: `yarn start:dev`
+- Base URL: `http://localhost:${PORT}` (defaults to `1337` if set in `.env`, otherwise `3001`).
 
-# watch mode
-$ yarn run start:dev
+**Authentication**
 
-# production mode
-$ yarn run start:prod
-```
+- Type: Bearer JWT.
+- Login: `POST /auth/login` returns `access_token`.
+- Send `Authorization: Bearer <token>` on protected endpoints.
+- Roles: `ADMIN`, `THERAPIST` (some endpoints require a specific role).
 
-## Run tests
+**Swagger Docs**
 
-```bash
-# unit tests
-$ yarn run test
+- UI: `GET /docs` (Basic Auth protected)
+- Username: `admin` — Password: `password123` (dev only; change in `src/main.ts`).
+- JSON schema: `GET /docs-json`
 
-# e2e tests
-$ yarn run test:e2e
+**Endpoints**
 
-# test coverage
-$ yarn run test:cov
-```
+- Auth:
+  - `POST /auth/login`
+    - Description: Sign in and receive a JWT.
+    - Body: `{ "email": "user@gmail.com", "password": "password123" }`
+    - Response: `{ "access_token": "...", "user": { id, email, name, role } }`
+  - `POST /auth/register`
+    - Description: Create user (defaults to `THERAPIST` role).
+    - Body: `{ "name": "John Doe", "email": "user@gmail.com", "password": "password123" }`
+  - `POST /auth/forgot-password`
+    - Description: Send reset link email if the user exists.
+    - Body: `{ "email": "user@gmail.com" }`
 
-## Deployment
+- Users (Bearer required):
+  - `GET /users/me`
+    - Description: Get the current user profile.
+  - `GET /users/all` (role: `ADMIN`)
+    - Description: Paginated users.
+    - Query: `page`, `limit`, `search`.
+  - `GET /users/:id` (role: `ADMIN`)
+    - Description: Get a user by id.
+  - `PUT /users/:id` (roles: `ADMIN` or `THERAPIST`)
+    - Description: Update a user.
+    - Body: Partial user fields.
+  - `DELETE /users/:id` (role: `ADMIN`)
+    - Description: Delete a user.
+  - `POST /users` (roles: `ADMIN` or `THERAPIST`)
+    - Description: Create a user.
+    - Body: `{ name, email, password }`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- Memberships:
+  - `GET /memberships`
+    - Description: List available plans (public).
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Subscriptions (Bearer required):
+  - `POST /subscriptions/create-checkout-session`
+    - Description: Create a Stripe Checkout Session.
+    - Body: `{ "priceId": "price_xxx" }`
+  - `GET /subscriptions/me`
+    - Description: Get current user subscription.
+  - `POST /subscriptions/direct-create` (role: `ADMIN`)
+    - Description: Create a subscription with `paymentMethodId` and `priceId`.
+    - Body: `{ "paymentMethodId": "pm_xxx", "priceId": "price_xxx" }`
 
-```bash
-yarn install -g @nestjs/mau
-mau deploy
-```
+- Stripe Webhook:
+  - `POST /webhook`
+    - Description: Receives Stripe events (expects raw `application/json` body).
+    - Usage: configured from Stripe; does not require `Bearer`.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- Clients (Bearer required, role: `THERAPIST`):
+  - `POST /clients`
+    - Description: Create a client attached to the authenticated therapist.
+    - Body: `{ "name": "John Doe", "email?": "john@example.com", "birthDate?": "YYYY-MM-DD", "gender?": "MALE|FEMALE|OTHER", "notes?": "..." }`
 
-## Resources
+- Form Invitations:
+  - `POST /form-invitations` (Bearer, roles: `ADMIN` or `THERAPIST`)
+    - Description: Create an invitation for a client to fill a form.
+    - Body: `{ "clientId": "uuid", "formTemplateId": "uuid", "expiresAt?": "ISO-8601" }`
+  - `GET /form-invitations` (Bearer, roles: `THERAPIST` or `ADMIN`)
+    - Description: List invitations for the therapist.
+  - `GET /form-invitations/:token` (public)
+    - Description: Public invitation details and questions.
+  - `POST /form-invitations/:token/responses` (public)
+    - Description: Submit form responses.
+    - Body: `{ "answers": { "question-id-1": "Answer 1", "question-id-2": "Answer 2" } }`
+  - `PATCH /form-invitations/:token/complete` (public)
+    - Description: Mark invitation as completed.
+  - `GET /form-invitations/:token/responses` (Bearer, roles: `THERAPIST` or `ADMIN`)
+    - Description: Get completed responses for an invitation.
 
-Check out a few resources that may come in handy when working with NestJS:
+- Form Responses (Bearer required, role: `THERAPIST`):
+  - `POST /form-responses`
+    - Description: Create a form response record.
+    - Body: `{ "answers": { "question-id": "value" } }`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Form Templates (Admin):
+  - `POST /admin/form-templates` (Bearer, role: `ADMIN`)
+    - Description: Create a new template.
+    - Body: `{ "title": "GAD-7", "description?": "...", "isActive": true, "questions": [ { "text": "Question?", "type": "MULTIPLE_CHOICE|SCALE|TEXT|...", "options?": { ... }, "order": 1 } ] }`
+  - `GET /admin/form-templates` (Bearer, role: `ADMIN`)
+    - Description: Paginated list. Query: `page`, `limit`, `search`.
+  - `GET /admin/form-templates/:id` (Bearer, role: `ADMIN`)
+    - Description: Get a template by id.
+  - `DELETE /admin/form-templates/:id` (Bearer, role: `ADMIN`)
+    - Description: Delete a template.
 
-## Support
+- Therapist (Bearer required, role: `THERAPIST`):
+  - `PUT /therapist/profile`
+    - Description: Update therapist profile.
+  - `GET /therapist/clients`
+    - Description: Therapist’s clients (paginated). Query: `page`, `limit`, `search`.
+  - `POST /therapist/clients`
+    - Description: Create client (same as `POST /clients`).
+  - `GET /therapist/responses`
+    - Description: Paginated list of answered forms.
+  - `GET /therapist/responses/:id`
+    - Description: Detailed answers of a form.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Environment Variables**
 
-## Stay in touch
+- `DATABASE_URL`: PostgreSQL connection string.
+- `JWT_SECRET`: JWT signing secret.
+- `PORT`: API port (e.g. `1337`).
+- `FRONTEND_URL`: Public frontend URL.
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`: Stripe integration.
+- SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Note: Do not commit real secrets. Use a local `.env`.
 
-## License
+**Quick Examples**
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-´´´
-{
-  "name": "Abril Cañedo",
-  "email": "<abrilpca@gmail.com>",
-  "password": "contraseña123A@!"
-}
-´´´
+- Login
+  - `curl -X POST http://localhost:1337/auth/login -H 'Content-Type: application/json' -d '{"email":"user@gmail.com","password":"password123"}'`
+- Create invitation (Therapist/Admin)
+  - `curl -X POST http://localhost:1337/form-invitations -H 'Authorization: Bearer <JWT>' -H 'Content-Type: application/json' -d '{"clientId":"<uuid>","formTemplateId":"<uuid>"}'`

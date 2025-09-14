@@ -14,7 +14,7 @@ export class StripeService {
     }
 
     this.stripe = new Stripe(key, {
-      apiVersion: '2025-06-30.basil',
+      apiVersion: '2025-08-27.basil',
     });
     this.logger.log('Stripe initialized successfully');
   }

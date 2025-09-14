@@ -7,6 +7,7 @@ import {
   Patch,
   UseGuards,
   HttpCode,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -29,6 +30,7 @@ import {FormInvitationResponseDto} from './dtos/form-invitation-response.dto';
 import {FormInvitationPublicDto} from './dtos/form-invitation-public.dto';
 import {CreateFormResponseDto} from './dtos/reate-form-response.dto';
 import {FormInvitationWithResponsesDto} from './dtos/form-invitation-with-responses.dto';
+import {UpdateFormInvitationDto} from '@/therapist/dtos/update-form-invitation.dto';
 
 @ApiTags('Form Invitations')
 @Controller('form-invitations')
@@ -87,6 +89,42 @@ export class FormInvitationsController {
   markAsCompleted(@Param('token') token: string) {
     return this.service.markAsCompleted(token);
   }
+
+  @Patch(':uid')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.THERAPIST, Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update expiration date for an invitation' })
+  @ApiParam({ name: 'uid', type: String, description: 'Invitation id or token' })
+  @ApiBody({
+    description:
+      'Cuerpo para actualizar la fecha de expiración. Omite el campo para eliminar la expiración.',
+    type: UpdateFormInvitationDto,
+    examples: {
+      setExpiration: {
+        summary: 'Establecer expiración',
+        value: { expiresAt: '2025-12-31T23:59:59.000Z' },
+      },
+      clearExpiration: {
+        summary: 'Eliminar expiración (no enviar campo)',
+        value: {},
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Invitation updated successfully',
+    type: FormInvitationResponseDto,
+  })
+  updateExpiration(
+    @Param('uid') uid: string,
+    @Body() dto: UpdateFormInvitationDto,
+    @User() user: JwtPayload,
+  ) {
+    const expiresAt = dto.expiresAt ? new Date(dto.expiresAt) : undefined;
+    return this.service.updateFormInvitation(user.sub, uid, expiresAt as any);
+  }
+
 
   @Post(':token/responses')
   @HttpCode(201)

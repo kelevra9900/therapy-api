@@ -11,10 +11,16 @@ import {format} from 'date-fns';
 import {FormInvitationResponseDto} from './dtos/form-invitation-response.dto';
 import {CreateFormResponseDto} from './dtos/reate-form-response.dto';
 import {Role} from '@prisma/client';
+import { MailService } from '@/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FormInvitationsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+    private readonly config: ConfigService,
+  ) { }
 
   async create(dto: CreateFormInvitationDto,user: JwtPayload): Promise<FormInvitationResponseDto> {
     if (user.role !== Role.THERAPIST && user.role !== Role.ADMIN) {
@@ -56,7 +62,7 @@ export class FormInvitationsService {
       },
     });
 
-    return {
+    const response: FormInvitationResponseDto = {
       id: invitation.id,
       token: invitation.token,
       clientId: invitation.clientId,
@@ -67,6 +73,25 @@ export class FormInvitationsService {
       createdAt: format(invitation.createdAt,'yyyy-MM-dd HH:mm:ss'),
       expiresAt: invitation.expiresAt?.toISOString() ?? null,
     };
+
+    // Send email if client has an email address
+    if (invitation.client.email) {
+      const baseUrl = this.config.get<string>('FRONTEND_URL') ?? '';
+      const invitationLink = `${baseUrl}/form-invitations/${invitation.token}`;
+      try {
+        await this.mail.sendFormInvitationEmail({
+          to: invitation.client.email,
+          formTitle: invitation.formTemplate.title,
+          invitationLink,
+          clientName: invitation.client.name,
+          expiresAt: invitation.expiresAt ?? undefined,
+        });
+      } catch (e) {
+        // avoid failing creation if email delivery errors; could log
+      }
+    }
+
+    return response;
   }
 
   async findByToken(token: string) {
@@ -123,6 +148,53 @@ export class FormInvitationsService {
       where: {token},
       data: {isCompleted: true},
     });
+  }
+
+  async updateFormInvitation(
+    therapistId: string,
+    uid:string, 
+    expired: Date
+  ){
+    const invitation = await this.prisma.formInvitation.findFirst({
+      where: {
+        OR: [{ id: uid }, { token: uid }],
+      },
+      include: {
+        client: true,
+        formTemplate: true,
+      },
+    });
+
+    if (!invitation) {
+      throw new NotFoundException('Invitation not found');
+    }
+
+    if (invitation.therapistId !== therapistId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const updated = await this.prisma.formInvitation.update({
+      where: { id: invitation.id },
+      data: { expiresAt: expired ?? null },
+      include: {
+        client: true,
+        formTemplate: true,
+      },
+    });
+
+    const response: FormInvitationResponseDto = {
+      id: updated.id,
+      token: updated.token,
+      clientId: updated.clientId,
+      clientName: updated.client.name,
+      formTemplateId: updated.formTemplateId,
+      formTitle: updated.formTemplate.title,
+      isCompleted: updated.isCompleted,
+      createdAt: format(updated.createdAt, 'yyyy-MM-dd HH:mm:ss'),
+      expiresAt: updated.expiresAt?.toISOString() ?? null,
+    };
+
+    return response;
   }
 
   async findAllForTherapist(user: JwtPayload): Promise<FormInvitationResponseDto[]> {

@@ -24,6 +24,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "seed": "ts-node prisma/seed.ts",
+    "seed:forms": "ts-node prisma/seed-forms.ts",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
@@ -42,7 +47,7 @@
     "class-validator": "^0.14.2",
     "date-fns": "^4.1.0",
     "express-basic-auth": "^1.2.1",
-    "nodemailer": "^7.0.5",
+    "nodemailer": "^7.0.6",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -63,6 +68,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/nodemailer": "^7.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",

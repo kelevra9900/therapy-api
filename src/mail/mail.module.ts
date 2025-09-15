@@ -2,23 +2,33 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { ConfigModule } from '@nestjs/config';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule,
-    MailerModule.forRoot({
-      transport: process.env.MAILER_URL ?? '',
-      defaults: {
-        from: '"hello" <hello@escalaterapia.com>',
-      },
-      template: {
-        dir: __dirname + '/srs/mail/templates',
-        adapter: new PugAdapter(),
-        options: {
-          strict: true,
-        },
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const port = parseInt(config.get<string>('SMTP_PORT') || '587', 10);
+        const secureEnv = config.get<string>('SMTP_SECURE');
+        const secure = secureEnv ? secureEnv === 'true' : port === 465;
+        return {
+          transport: {
+            host: config.get<string>('SMTP_HOST'),
+            port,
+            secure,
+            auth: {
+              user: config.get<string>('SMTP_USER'),
+              pass: config.get<string>('SMTP_PASS'),
+            },
+            requireTLS: true,
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000,
+          }
+        };
       },
     }),
   ],

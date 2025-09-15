@@ -72,18 +72,16 @@ export class TherapistService {
       this.logger.debug(`Intent to send email to ${invitation.client.email}...`)
       const baseUrl = this.config.get<string>('FRONTEND_URL') ?? '';
       const invitationLink = `${baseUrl}/form-invitations/${invitation.token}`;
-      try {
-        await this.mail.sendFormInvitationEmail({
+      this.mail
+        .sendFormInvitationEmail({
           to: invitation.client.email,
           formTitle: invitation.formTemplate.title,
           invitationLink,
           clientName: invitation.client.name,
           expiresAt: invitation.expiresAt ?? undefined,
-        });
-      } catch (e) {
-        this.logger.debug("Error to send email ====>", e)
-        // swallow email errors to not block flow; could add logging here
-      }
+        })
+        .then(() => this.logger.debug(`Email dispatch attempted to ${invitation.client.email}`))
+        .catch((e) => this.logger.error('Failed to send email', e));
     }
 
     return {

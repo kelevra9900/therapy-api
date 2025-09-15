@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 import { resetPasswordTemplate } from './templates/reset-password';
 import { formInvitationTemplate } from './templates/form-invitation';
 import { genericTemplate } from './templates/generic';
@@ -8,7 +9,10 @@ import { subscriptionTemplate } from './templates/subscription';
 
 @Injectable()
 export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly config: ConfigService,
+  ) {}
 
   async sendResetPasswordEmail(to: string, resetUrl: string, name?: string): Promise<void> {
     const tpl = resetPasswordTemplate({ resetUrl, name });
@@ -24,12 +28,13 @@ export class MailService {
     cc?: string | string[];
     bcc?: string | string[];
   }): Promise<void> {
+    const defaultFrom = this.config.get<string>('SMTP_FROM') || '"hello" <hello@escalaterapia.com>';
     await this.mailerService.sendMail({
       to: args.to,
       subject: args.subject,
       html: args.html,
       text: args.text,
-      from: args.from,
+      from: args.from ?? defaultFrom,
       cc: args.cc,
       bcc: args.bcc,
     });

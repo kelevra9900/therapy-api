@@ -137,4 +137,42 @@ export class AuthService {
       return { message: 'Reset link sent to your email address.' };
     }
 
+    async changePassword(
+      userId: string,
+      actualPassword: string,
+      newPassword: string,
+      confirmPassword: string,
+    ): Promise<{ message: string }> {
+      if (newPassword !== confirmPassword) {
+        throw new UnauthorizedException('Passwords do not match');
+      }
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, passwordHash: true },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const isCurrentValid = await this.comparePassword(
+        actualPassword,
+        user.passwordHash,
+      );
+
+      if (!isCurrentValid) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+
+      const newHash = await this.hashPassword(newPassword);
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash: newHash },
+      });
+
+      return { message: 'Password updated successfully' };
+    }
+
 }

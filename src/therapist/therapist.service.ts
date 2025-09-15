@@ -168,6 +168,12 @@ async getClients(query: QueryOptionsDto, therapistId: string): Promise<Paginated
     });
   }
 
+  async deletePatient(id: string){
+    return {
+      message: `Delete this id ${id}`
+    }
+  }
+
   async getFormResponses(query: QueryOptionsDto, therapistId: string): Promise<PaginatedResponse<FormResponseSummaryDto>> {
     const { page = 1, limit = 10, search } = query;
     const baseSearchCondition = search

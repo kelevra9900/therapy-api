@@ -28,6 +28,7 @@ import { FormTemplateDetailDto } from '@/form-templates/dtos/form-template-detai
 import { CreateFormInvitationDto } from '@/forms/dtos/create-form-invitation.dto';
 import { FormInvitationResponseDto } from '@/forms/dtos/form-invitation-response.dto';
 import { ClientOverviewDto } from './dtos/client-overview.dto';
+import {AuthGuard} from '@nestjs/passport';
 
 @ApiTags('Therapist')
 @ApiBearerAuth()
@@ -65,6 +66,18 @@ export class TherapistController {
     const userId = req.user['sub'];
     return this.therapistService.getClients(query, userId);
   }
+
+    // @Delete('patients/:id')
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @Roles(Role.ADMIN)
+    // @ApiOperation({ summary: 'Delete user by ID' })
+    // @ApiParam({ name: 'id', type: String })
+    // @ApiResponse({ status: 200, description: 'User deleted', schema: {
+    //   example: { message: 'User deleted successfully' },
+    // }})
+    // deleteUser(@Param('id') id: string): Promise<{ message: string }> {
+    //   return this.therapistService.deletePatient(id);
+    // }
 
   @ApiOperation({ summary: 'Crear cliente para el terapeuta' })
   @Post('clients')

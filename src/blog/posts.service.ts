@@ -27,18 +27,20 @@ export class PostsService {
   }
 
   async findAll(query: QueryOptionsDto & { status?: PostStatus; categoryId?: string }) {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
+    const page = Number((query as any).page) || 1;
+    const limit = Number((query as any).limit) || 10;
     const where: any = {};
 
-    if (query.search) {
+    const search = typeof query.search === 'string' ? query.search.trim() : undefined;
+    if (search) {
       where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
-        { excerpt: { contains: query.search, mode: 'insensitive' } },
+        { title: { contains: search, mode: 'insensitive' } },
+        { excerpt: { contains: search, mode: 'insensitive' } },
       ];
     }
     if (query.status) where.status = query.status;
-    if (query.categoryId) where.categoryId = query.categoryId;
+    const categoryId = typeof query.categoryId === 'string' ? query.categoryId.trim() : undefined;
+    if (categoryId) where.categoryId = categoryId;
 
     const [totalCount, data] = await this.prisma.$transaction([
       this.prisma.blogPost.count({ where }),
@@ -103,4 +105,3 @@ export class PostsService {
     return { message: 'Post deleted' };
   }
 }
-

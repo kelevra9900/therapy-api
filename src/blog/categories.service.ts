@@ -12,10 +12,11 @@ export class CategoriesService {
   }
 
   async findAll(query: QueryOptionsDto) {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
-    const where = query.search
-      ? { name: { contains: query.search, mode: 'insensitive' as const } }
+    const page = Number((query as any).page) || 1;
+    const limit = Number((query as any).limit) || 10;
+    const search = typeof query.search === 'string' ? query.search.trim() : undefined;
+    const where = search
+      ? { name: { contains: search, mode: 'insensitive' as const } }
       : {};
 
     const [totalCount, data] = await this.prisma.$transaction([
@@ -56,4 +57,3 @@ export class CategoriesService {
     return { message: 'Category deleted' };
   }
 }
-

@@ -25,9 +25,21 @@ export class PostsController {
   findAll(
     @Query() query: QueryOptionsDto & { status?: PostStatus; categoryId?: string },
   ) {
-    // Default: only published if status not provided
-    const effectiveQuery = { ...query } as any;
-    if (!effectiveQuery.status) effectiveQuery.status = PostStatus.PUBLISHED;
+    // Default: only published if status not provided or blank
+    const effectiveQuery: any = { ...query };
+    const statusBlank =
+      effectiveQuery.status === undefined ||
+      (typeof effectiveQuery.status === 'string' && effectiveQuery.status.trim() === '');
+    if (statusBlank) effectiveQuery.status = PostStatus.PUBLISHED;
+
+    // Normalize blank query strings to undefined
+    if (typeof effectiveQuery.search === 'string' && effectiveQuery.search.trim() === '') {
+      effectiveQuery.search = undefined;
+    }
+    if (typeof effectiveQuery.categoryId === 'string' && effectiveQuery.categoryId.trim() === '') {
+      effectiveQuery.categoryId = undefined;
+    }
+
     return this.posts.findAll(effectiveQuery);
   }
 
@@ -80,4 +92,3 @@ export class PostsController {
     return this.posts.remove(id, user);
   }
 }
-

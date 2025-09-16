@@ -16,14 +16,15 @@ export async function paginate<T>(
     select?: Prisma.Enumerable<any>;
   },
 ) {
-  const page = query.page || 1;
-  const limit = query.limit || 10;
+  const page = Number((query as any).page) || 1;
+  const limit = Number((query as any).limit) || 10;
+  const rawSearch = typeof options?.searchValue === 'string' ? options?.searchValue.trim() : options?.searchValue;
 
   const where = {
     ...(options?.where || {}),
-    ...(options?.searchField && options?.searchValue && {
+    ...(options?.searchField && rawSearch && {
       [options.searchField]: {
-        contains: options.searchValue,
+        contains: rawSearch,
         mode: Prisma.QueryMode.insensitive,
       },
     }),

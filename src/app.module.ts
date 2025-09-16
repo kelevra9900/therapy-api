@@ -13,6 +13,7 @@ import {FormInvitationModel} from './forms/form-invitations.module';
 import {FormTemplatesModule} from './form-templates/form-templates.module';
 import {TherapistModule} from './therapist/therapist.module';
 import {MailModule} from './mail/mail.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import {MailModule} from './mail/mail.module';
     FormResponsesModule,
     FormInvitationModel,
     TherapistModule,
-    FormTemplatesModule
+    FormTemplatesModule,
+    BlogModule,
   ],
   controllers: [],
 })

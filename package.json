@@ -26,6 +26,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node prisma/seed.ts",
     "seed:forms": "ts-node prisma/seed-forms.ts",
+    "seed:blog": "ts-node prisma/seed-blog.ts",
     "db:seed": "prisma db seed"
   },
   "prisma": {

@@ -67,6 +67,10 @@ model User {
   formResponses FormResponse[]
   formInvitations FormInvitation[]
   passwordResetToken PasswordResetToken[]
+
+  // Back-relations para blog
+  blogPosts BlogPost[] @relation("UserBlogPosts")
+  comments  Comment[]  @relation("UserComments")
 }
 
 model Membership {
@@ -210,4 +214,75 @@ model Report {
   generatedAt    DateTime     @default(now())
 
   formResponse FormResponse @relation(fields: [formResponseId], references: [id])
+}
+
+// ---------------------------------------------
+// Blog: categorías, posts, portada y comentarios
+// ---------------------------------------------
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  posts BlogPost[]
+}
+
+model BlogPost {
+  id            String      @id @default(uuid())
+  title         String
+  slug          String      @unique
+  excerpt       String?
+  content       String
+  coverImage    String?
+  coverImageAlt String?
+  isFeatured    Boolean     @default(false)
+  status        PostStatus  @default(DRAFT)
+  publishedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relaciones
+  authorId  String
+  author    User        @relation("UserBlogPosts", fields: [authorId], references: [id])
+
+  categoryId String
+  category   Category    @relation(fields: [categoryId], references: [id])
+
+  comments Comment[]
+}
+
+model Comment {
+  id        String         @id @default(uuid())
+  content   String
+  status    CommentStatus  @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  // Relaciones
+  postId  String
+  post    BlogPost @relation(fields: [postId], references: [id])
+
+  authorId String?
+  author   User?    @relation("UserComments", fields: [authorId], references: [id])
+
+  // Soporte para hilos (respuestas)
+  parentId String?
+  parent   Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentToReplies")
 }

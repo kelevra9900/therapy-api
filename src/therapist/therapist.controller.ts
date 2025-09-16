@@ -28,7 +28,6 @@ import { FormTemplateDetailDto } from '@/form-templates/dtos/form-template-detai
 import { CreateFormInvitationDto } from '@/forms/dtos/create-form-invitation.dto';
 import { FormInvitationResponseDto } from '@/forms/dtos/form-invitation-response.dto';
 import { ClientOverviewDto } from './dtos/client-overview.dto';
-import {AuthGuard} from '@nestjs/passport';
 
 @ApiTags('Therapist')
 @ApiBearerAuth()

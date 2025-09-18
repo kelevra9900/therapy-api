@@ -48,7 +48,6 @@ export class PostsService {
         { excerpt: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (query.status) where.status = query.status;
     const categoryId = typeof query.categoryId === 'string' ? query.categoryId.trim() : undefined;
     if (categoryId) where.categoryId = categoryId;
 

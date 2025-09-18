@@ -30,13 +30,9 @@ export class PostsController {
   findAll(
     @Query() query: QueryOptionsDto & { status?: PostStatus; categoryId?: string },
   ) {
-    // Default: only published if status not provided or blank
+    // Default: Get all 
     const effectiveQuery: any = { ...query };
-    const statusBlank =
-      effectiveQuery.status === undefined ||
-      (typeof effectiveQuery.status === 'string' && effectiveQuery.status.trim() === '');
-    if (statusBlank) effectiveQuery.status = PostStatus.PUBLISHED;
-
+    
     // Normalize blank query strings to undefined
     if (typeof effectiveQuery.search === 'string' && effectiveQuery.search.trim() === '') {
       effectiveQuery.search = undefined;

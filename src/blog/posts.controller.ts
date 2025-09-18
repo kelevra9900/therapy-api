@@ -1,14 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post as HttpPost, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PostsService } from './posts.service';
-import { CreatePostDto, UpdatePostDto, UpdatePostStatusDto } from './dtos/post.dto';
+import { Body, Controller, Delete, Get, Param, Patch, Post as HttpPost, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role, PostStatus } from '@prisma/client';
+
 import { QueryOptionsDto } from '@/common/dtos/query-options.dto';
-import { AuthGuard } from '@/auth/auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/roles.decorator';
-import { Role, PostStatus } from '@prisma/client';
 import { User } from '@/common/decorators/user.decorator';
+import { PostsService } from './posts.service';
+
 import { JwtPayload } from '@/auth/types';
+import { AuthGuard } from '@/auth/auth.guard';
+import { CreatePostDto, UpdatePostDto, UpdatePostStatusDto } from './dtos/post.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import type { MediaFile } from '@/media/media.types';
 
 @ApiTags('Blog - Posts')
 @Controller('blog/posts')
@@ -55,9 +60,15 @@ export class PostsController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.THERAPIST)
   @ApiOperation({ summary: 'Create post (author or admin). Status forced to DRAFT.' })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreatePostDto })
-  create(@Body() dto: CreatePostDto, @User() user: JwtPayload) {
-    return this.posts.create(dto, user);
+  @UseInterceptors(FileInterceptor('coverImageFile', { storage: memoryStorage() }))
+  create(
+    @Body() dto: CreatePostDto,
+    @User() user: JwtPayload,
+    @UploadedFile() coverImageFile?: MediaFile,
+  ) {
+    return this.posts.create(dto, user, coverImageFile);
   }
 
   @Put(':id')
@@ -66,9 +77,16 @@ export class PostsController {
   @Roles(Role.ADMIN, Role.THERAPIST)
   @ApiOperation({ summary: 'Update post (author or admin)' })
   @ApiParam({ name: 'id', type: String })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdatePostDto })
-  update(@Param('id') id: string, @Body() dto: UpdatePostDto, @User() user: JwtPayload) {
-    return this.posts.update(id, dto, user);
+  @UseInterceptors(FileInterceptor('coverImageFile', { storage: memoryStorage() }))
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdatePostDto,
+    @User() user: JwtPayload,
+    @UploadedFile() coverImageFile?: MediaFile,
+  ) {
+    return this.posts.update(id, dto, user, coverImageFile);
   }
 
   @Patch(':id/status')

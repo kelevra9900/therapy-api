@@ -4,19 +4,28 @@ import { CreatePostDto, UpdatePostDto, UpdatePostStatusDto } from './dtos/post.d
 import { QueryOptionsDto } from '@/common/dtos/query-options.dto';
 import { JwtPayload } from '@/auth/types';
 import { PostStatus, Role } from '@prisma/client';
+import { MediaService } from '@/media/media.service';
+import type { MediaFile } from '@/media/media.types';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
 
-  async create(dto: CreatePostDto, user: JwtPayload) {
+  async create(dto: CreatePostDto, user: JwtPayload, coverImageFile?: MediaFile) {
+    const coverImagePath = coverImageFile
+      ? await this.media.persistFile(coverImageFile, 'blog')
+      : dto.coverImage;
+
     return this.prisma.blogPost.create({
       data: {
         title: dto.title,
         slug: dto.slug,
         excerpt: dto.excerpt,
         content: dto.content,
-        coverImage: dto.coverImage,
+        coverImage: coverImagePath,
         coverImageAlt: dto.coverImageAlt,
         isFeatured: dto.isFeatured ?? false,
         authorId: user.sub,
@@ -27,6 +36,7 @@ export class PostsService {
   }
 
   async findAll(query: QueryOptionsDto & { status?: PostStatus; categoryId?: string }) {
+
     const page = Number((query as any).page) || 1;
     const limit = Number((query as any).limit) || 10;
     const where: any = {};
@@ -82,11 +92,27 @@ export class PostsService {
     return post;
   }
 
-  async update(id: string, dto: UpdatePostDto, user: JwtPayload) {
-    await this.ensureCanEdit(id, user);
+  async update(
+    id: string,
+    dto: UpdatePostDto,
+    user: JwtPayload,
+    coverImageFile?: MediaFile,
+  ) {
+    const post = await this.ensureCanEdit(id, user);
+    const data: any = { ...dto };
+    delete data.coverImageFile;
+
+    if (coverImageFile) {
+      const newPath = await this.media.persistFile(coverImageFile, 'blog');
+      if (post.coverImage) await this.media.removeFile(post.coverImage);
+      data.coverImage = newPath;
+    } else if (data.coverImage && data.coverImage !== post.coverImage) {
+      if (post.coverImage) await this.media.removeFile(post.coverImage);
+    }
+
     return this.prisma.blogPost.update({
       where: { id },
-      data: dto,
+      data,
       include: { category: true, author: { select: { id: true, name: true } } },
     });
   }

@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { createPrismaMock } from './utils/mockPrisma';
+import { startApp } from './utils/start-app';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +22,7 @@ describe('Auth (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    await app.init();
+    await startApp(app);
   });
 
   afterEach(() => {
@@ -81,4 +82,3 @@ describe('Auth (e2e)', () => {
     expect(res.body.user).toMatchObject({ id: 'u-2', email: 'login@example.com' });
   });
 });
-

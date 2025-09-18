@@ -10,6 +10,8 @@ import {UpdateUserDto} from './dtos/update-user.dto';
 import {RegisterDto} from '@/auth/dto/auth.dto';
 import {AuthService} from '@/auth/auth.service';
 import {Role, SubscriptionStatus} from '@prisma/client';
+import {MediaService} from '@/media/media.service';
+import type {MediaFile} from '@/media/media.types';
 
 
 @Injectable()
@@ -20,6 +22,7 @@ export class UsersService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly authService: AuthService,
+    private readonly mediaService: MediaService,
   ) {
   }
 
@@ -88,6 +91,7 @@ export class UsersService {
         orderBy: {createdAt: 'desc'},
         select: {
           id: true,
+          avatar: true,
           name: true,
           email: true,
           role: true,
@@ -114,7 +118,7 @@ export class UsersService {
   }
 
 
-  async updateUser(id: string,dto: UpdateUserDto,user: JwtPayload): Promise<UserResponseDto> {
+  async updateUser(id: string,dto: UpdateUserDto,user: JwtPayload, avatarFile?: MediaFile): Promise<UserResponseDto> {
     this.logger.log(`Updating user with ID: ${id} by user with ID: ${user.sub}`);
     this.logger.log(`User role: ${user.role}`);
     this.logger.log(`Update data: ${JSON.stringify(dto)}`);
@@ -148,11 +152,23 @@ export class UsersService {
       throw new ForbiddenException('Access denied');
     }
 
+    const data: any = { ...dto };
+    delete data.avatarFile;
+
+    if (avatarFile) {
+      const newAvatar = await this.mediaService.persistFile(avatarFile, 'avatars');
+      if (targetUser.avatar) await this.mediaService.removeFile(targetUser.avatar);
+      data.avatar = newAvatar;
+    } else if (data.avatar && data.avatar !== targetUser.avatar) {
+      await this.mediaService.removeFile(targetUser.avatar);
+    }
+
     const updated = await this.prismaService.user.update({
       where: {id},
-      data: dto,
+      data,
       select: {
         id: true,
+        avatar: true,
         name: true,
         email: true,
         role: true,
@@ -201,6 +217,7 @@ export class UsersService {
     });
     return {
       id: newUser.id,
+      avatar: newUser.avatar,
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,

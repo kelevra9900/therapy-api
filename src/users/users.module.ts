@@ -6,10 +6,12 @@ import {UsersController} from './users.controller';
 import {jwtConstants} from '../utils/constants';
 import {SharedModule} from '../common/shared.module';
 import {AuthService} from '@/auth/auth.service';
+import {MediaModule} from '@/media/media.module';
 
 @Module({
   imports: [
     SharedModule,
+    MediaModule,
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,

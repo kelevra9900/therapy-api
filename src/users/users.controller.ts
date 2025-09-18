@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,6 +20,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 
 import { Role } from '@prisma/client';
@@ -33,6 +36,9 @@ import { UserResponseDto } from './dtos/user-response.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RegisterDto } from '@/auth/dto/auth.dto';
 import {PaginatedUserResponseDto} from './dtos/paginated-user-response.dto';
+import {FileInterceptor} from '@nestjs/platform-express';
+import type {MediaFile} from '@/media/media.types';
+import {memoryStorage} from 'multer';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -83,14 +89,17 @@ export class UsersController {
   @Roles(Role.ADMIN, Role.THERAPIST)
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiParam({ name: 'id', type: String })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'User updated', type: UserResponseDto })
+  @UseInterceptors(FileInterceptor('avatarFile', { storage: memoryStorage() }))
   updateUser(
     @Param('id') id: string,
     @User() user: JwtPayload,
     @Body() dto: UpdateUserDto,
+    @UploadedFile() avatarFile?: MediaFile,
   ) {
-    return this.usersService.updateUser(id, dto, user);
+    return this.usersService.updateUser(id, dto, user, avatarFile);
   }
 
   @Delete(':id')

@@ -18,6 +18,14 @@ export function createPrismaMock() {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    blogPost: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      count: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
     membership: {
       findMany: jest.fn(),
     },
@@ -29,4 +37,3 @@ export function createPrismaMock() {
   };
   return mock as DeepMock<any>;
 }
-

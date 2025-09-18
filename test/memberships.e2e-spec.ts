@@ -5,6 +5,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { createPrismaMock } from './utils/mockPrisma';
+import { startApp } from './utils/start-app';
 
 describe('Memberships (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +21,7 @@ describe('Memberships (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    await app.init();
+    await startApp(app);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -38,4 +39,3 @@ describe('Memberships (e2e)', () => {
     expect(prisma.membership.findMany).toHaveBeenCalled();
   });
 });
-

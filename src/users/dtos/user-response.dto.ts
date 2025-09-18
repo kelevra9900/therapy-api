@@ -12,6 +12,9 @@ export class UserResponseDto {
   @ApiProperty()
   email: string;
 
+  @ApiProperty({ required: false, nullable: true })
+  avatar?: string | null;
+
   @ApiProperty({ enum: Role })
   role: Role;
 

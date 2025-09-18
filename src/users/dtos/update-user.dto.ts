@@ -15,6 +15,15 @@ export class UpdateUserDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @ApiPropertyOptional({ type: 'string', format: 'binary', description: 'Foto de perfil' })
+  @IsOptional()
+  avatarFile?: any;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsEnum(Role)
   role?: Role;
 

@@ -14,6 +14,7 @@ import {FormTemplatesModule} from './form-templates/form-templates.module';
 import {TherapistModule} from './therapist/therapist.module';
 import {MailModule} from './mail/mail.module';
 import { BlogModule } from './blog/blog.module';
+import {DashboardModule} from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { BlogModule } from './blog/blog.module';
       isGlobal: true,
     }),
     UsersModule,
+    DashboardModule,
     AuthModule,
     SharedModule,
     SubscriptionsModule,

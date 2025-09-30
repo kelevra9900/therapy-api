@@ -9,8 +9,19 @@ import { PostsController } from './posts.controller';
 import { CommentsController } from './comments.controller';
 
 @Module({
-  imports: [SharedModule, MediaModule],
-  providers: [CategoriesService, PostsService, CommentsService],
-  controllers: [CategoriesController, PostsController, CommentsController],
+  imports: [
+    SharedModule, 
+    MediaModule
+  ],
+  providers: [
+    CategoriesService, 
+    PostsService, 
+    CommentsService
+  ],
+  controllers: [
+    CategoriesController, 
+    PostsController, 
+    CommentsController
+  ],
 })
 export class BlogModule {}
